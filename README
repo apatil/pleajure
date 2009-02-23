@@ -1,0 +1,9 @@
+Example of usage:
+
+(load-file "pleajure.clj")
+
+Translate and display:
+(join-lines (plj-to-clj fname))
+
+Translate and load (like load-file):
+(with-pleajure "test.plj")
