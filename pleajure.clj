@@ -1,7 +1,3 @@
-; Rules:
-;  comma: next line continues this line.
-;  backslash: Close the paren on this line, then next line continues it.
-
 (def space-tab "    ")
 
 (defn num-tabs [line]
@@ -92,7 +88,3 @@
                 (vec (concat (conj out-lines last-line) noncode-lines))))))
 
 (defn with-pleajure [fname] (load-string (join-lines (plj-to-clj fname))))
-
-;(map num-tabs (file-lines "test.plj"))
-;(map comma? (file-lines "test.plj"))
-;(map slash? (file-lines "test.plj"))
