@@ -1,3 +1,14 @@
+Pleajure.clj
+By Anand Patil
+February 20, 2009
+Common Public License
+
+
+Purpose:
+
+Lets you write Clojure S-expressions using whitespace in place of parentheses. The resulting look-and-feel is not entirely unlike Python.
+
+
 Example of usage:
 
 (load-file "pleajure.clj")
@@ -7,3 +18,63 @@ Translate and display:
 
 Translate and load (like load-file):
 (with-pleajure "test.plj")
+
+
+
+Examples of syntax:
+
+-------------------------------------
+
+defn report-to-child [val parent agent-parents parents update-fn agent-parent-vals]
+    "Called by parent-watcher when a parent either updates or reverts to
+    the 'need-update' state. If a parent updates and the child cell wants
+    to update, computation is performed if possible. If a parent reverts
+    to the need-to-update state, the child is put into the need-to-update 
+    state also."
+    do (dosync (commute agent-parent-vals swap-agent-parent-value parent))
+        if (:updating val) 
+            if (= (count @agent-parent-vals) (count agent-parents)) ,
+                (compute parents agent-parent-vals update-fn) ,
+                val
+            if (:needs-update val) ,
+                val ,
+                {:needs-update true}
+
+--------- translates to --------------
+
+(defn report-to-child [val parent agent-parents parents update-fn agent-parent-vals]
+    "Called by parent-watcher when a parent either updates or reverts to
+    the 'need-update' state. If a parent updates and the child cell wants
+    to update, computation is performed if possible. If a parent reverts
+    to the need-to-update state, the child is put into the need-to-update
+    state also."
+    (do (dosync (commute agent-parent-vals swap-agent-parent-value parent))
+        (if (:updating val)
+            (if (= (count @agent-parent-vals) (count agent-parents)) ,
+                (compute parents agent-parent-vals update-fn) ,
+                val)
+            (if (:needs-update val) ,
+                val ,
+                {:needs-update true}))))
+
+-------------------------------------
+
+-------------------------------------
+
+defn id? [x] 
+    "Checks whether x is an id: ref, value or agent"
+    or
+        instance? clojure.lang.IRef x
+        instance? clojure.lang.Agent x
+        instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x
+        
+--------- translates to --------------
+
+(defn id? [x]
+    "Checks whether x is an id: ref, value or agent"
+    (or
+        (instance? clojure.lang.IRef x)
+        (instance? clojure.lang.Agent x)
+        (instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x)))
+        
+-------------------------------------
