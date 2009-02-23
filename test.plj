@@ -1,0 +1,81 @@
+; Author: Anand Patil
+; Date: Feb 5, 2009
+; Common Public License
+
+set! *warn-on-reflection* true
+
+; ==================================================
+; = Utility stuff not immediately related to cells =
+; ==================================================
+defn agent? [x] (instance? clojure.lang.Agent x)
+
+defn id? [x] 
+    "Checks whether x is an id: ref, value or agent"
+    or
+        instance? clojure.lang.IRef x
+        instance? clojure.lang.Agent x
+        instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x
+defn deref-or-val [x] (if (id? x) @x x)
+
+defn map-now [fn coll] 
+    doall (map fn coll)
+defn second-arg [x y] y
+defn set-agent! [a v] 
+    send a second-arg v
+
+; ==================
+; = Updating stuff =
+; ==================
+
+defn complete-parents [val parents]
+    "Takes a map of the form {parent @parent}, and a list of mutable and
+    immutable parents, and returns a list of the parents' values in the
+    correct order."
+    loop [parents-sofar parents val-sofar (list)]
+        if (empty? parents-sofar) val-sofar
+            let [parent (last parents-sofar) ,
+            rest-parents (butlast parents-sofar) , 
+            this-val (val parent) ,
+            ]
+            if this-val
+                ; If value has a key corresponding to this parent, cons the corresponding value
+                recur rest-parents (cons this-val val-sofar)
+                ; Otherwise, cons the parent.
+                recur rest-parents (cons (deref-or-val parent) val-sofar)
+
+defn swap-agent-parent-value [val parent]
+    "Utility function that incorporates updated parents into a cell's
+    parent value ref." 
+    let [parent-val @parent]
+        if (:needs-update parent-val) 
+            dissoc val parent
+            assoc val parent parent-val
+
+defn updating-fn [x] (if (:needs-update x) (assoc x :updating true) x)
+defn send-update [p] "Utility function that puts p into the updating state." (send p updating-fn)
+
+defn compute [parents agent-parent-vals update-fn] 
+    "Utility function that applies a cell's updating function to its
+    parents." 
+    apply update-fn (complete-parents @agent-parent-vals parents)
+
+defn report-to-child [val parent agent-parents parents update-fn agent-parent-vals]
+    "Called by parent-watcher when a parent either updates or reverts to
+    the 'need-update' state. If a parent updates and the child cell wants
+    to update, computation is performed if possible. If a parent reverts
+    to the need-to-update state, the child is put into the need-to-update 
+    state also."
+    do (dosync (commute agent-parent-vals swap-agent-parent-value parent))
+        if (:updating val) 
+            if (= (count @agent-parent-vals) (count agent-parents)) ,
+                (compute parents agent-parent-vals update-fn) ,
+                val
+            if (:needs-update val) ,
+                val ,
+                {:needs-update true}
+        
+
+defmacro def-cell [sym update-fn parents]
+    "Creates and inters a cell in the current namespace, bound to sym,
+    with given parents and update function." 
+    `(def ~sym (cell ~@(name sym) ~update-fn ~parents)))
