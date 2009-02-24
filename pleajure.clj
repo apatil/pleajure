@@ -42,7 +42,7 @@
     (let [first-line (first lines)] 
 
         (loop
-            [last-line (if (comment-or-quote? first-line) first-line (add-opening-paren first-line)) 
+            [last-line (if (comment? first-line) first-line (add-opening-paren first-line)) 
             this-line (second lines) 
             rest-lines (rrest lines) 
             last-tab (first tabs) 
