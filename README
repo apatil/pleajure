@@ -4,12 +4,16 @@ February 20, 2009
 Common Public License
 
 
-Purpose:
+ ===========
+ = Purpose =
+ ===========
 
-Lets you write Clojure S-expressions using whitespace in place of parentheses. The resulting look-and-feel is not entirely unlike Python.
+Pleajure lets you write Clojure S-expressions using whitespace in place of parentheses. The resulting look-and-feel is a bit like Python.
 
 
-Example of usage:
+ =================
+ = Usage example =
+ =================
 
 (load-file "pleajure.clj")
 
@@ -20,10 +24,76 @@ Translate and load (like load-file):
 (with-pleajure "test.plj")
 
 
+ =====================
+ = Translation rules =
+ =====================
 
-Examples of syntax:
+1) Lines are listed S-expressions. That means
 
--------------------------------------
+    a .....
+    b .....
+
+translates to 
+
+    (a .....) (b .....)
+
+
+2) Indented blocks are nested S-expressions. That means
+
+    a ......
+        b ......
+            c ......
+        d ......
+        e ......
+
+translates to 
+
+    (a ...... (b ...... (c ......)) (d ......) (e ......))
+
+
+3) Commas mean the next line is part of the current line. That means
+
+    a ......
+        b ......,
+            ######
+            c ......,
+                ******
+        d ......
+        e ......
+
+translates to
+
+    (a ...... (b ......, ###### (c ......, ******)) (d ......) (e ......))
+
+
+4) Lines that are part of strings and comments are left alone.
+
+
+ ===================
+ = Syntax examples =
+ ===================
+
+***********************************************************************
+
+defn id? [x] 
+    "Checks whether x is an id: ref, value or agent"
+    or
+        instance? clojure.lang.IRef x
+        instance? clojure.lang.Agent x
+        instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x
+        
+--------- translates to --------------
+
+(defn id? [x]
+    "Checks whether x is an id: ref, value or agent"
+    (or
+        (instance? clojure.lang.IRef x)
+        (instance? clojure.lang.Agent x)
+        (instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x)))
+        
+***********************************************************************
+
+***********************************************************************
 
 defn report-to-child [val parent agent-parents parents update-fn agent-parent-vals]
     "Called by parent-watcher when a parent either updates or reverts to
@@ -57,24 +127,11 @@ defn report-to-child [val parent agent-parents parents update-fn agent-parent-va
                 val ,
                 {:needs-update true}))))
 
--------------------------------------
+***********************************************************************
 
--------------------------------------
 
-defn id? [x] 
-    "Checks whether x is an id: ref, value or agent"
-    or
-        instance? clojure.lang.IRef x
-        instance? clojure.lang.Agent x
-        instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x
-        
---------- translates to --------------
+ ========
+ = Note =
+ ========
 
-(defn id? [x]
-    "Checks whether x is an id: ref, value or agent"
-    (or
-        (instance? clojure.lang.IRef x)
-        (instance? clojure.lang.Agent x)
-        (instance? clojure.proxy.java.util.concurrent.atomic.AtomicReference$IRef x)))
-        
--------------------------------------
+Pleajure is alpha. Expect some errors. If you want it to work better, fork it!
