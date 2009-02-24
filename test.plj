@@ -35,13 +35,12 @@ defn complete-parents [val parents]
         if (empty? parents-sofar) val-sofar
             let [parent (last parents-sofar) ,
             rest-parents (butlast parents-sofar) , 
-            this-val (val parent) ,
-            ]
-            if this-val
-                ; If value has a key corresponding to this parent, cons the corresponding value
-                recur rest-parents (cons this-val val-sofar)
-                ; Otherwise, cons the parent.
-                recur rest-parents (cons (deref-or-val parent) val-sofar)
+            this-val (val parent) ]
+                if this-val
+                    ; If value has a key corresponding to this parent, cons the corresponding value
+                    recur rest-parents (cons this-val val-sofar)
+                    ; Otherwise, cons the parent.
+                    recur rest-parents (cons (deref-or-val parent) val-sofar)
 
 defn swap-agent-parent-value [val parent]
     "Utility function that incorporates updated parents into a cell's
@@ -53,6 +52,11 @@ defn swap-agent-parent-value [val parent]
 
 defn updating-fn [x] (if (:needs-update x) (assoc x :updating true) x)
 defn send-update [p] "Utility function that puts p into the updating state." (send p updating-fn)
+
+defmacro def-cell [sym update-fn parents] ,
+    "Creates and inters a cell in the current namespace, bound to sym,
+    with given parents and update function." 
+    `(def ~sym (cell ~@(name sym) ~update-fn ~parents))
 
 defn compute [parents agent-parent-vals update-fn] 
     "Utility function that applies a cell's updating function to its
@@ -73,9 +77,3 @@ defn report-to-child [val parent agent-parents parents update-fn agent-parent-va
             if (:needs-update val) ,
                 val ,
                 {:needs-update true}
-        
-
-defmacro def-cell [sym update-fn parents]
-    "Creates and inters a cell in the current namespace, bound to sym,
-    with given parents and update function." 
-    `(def ~sym (cell ~@(name sym) ~update-fn ~parents)))

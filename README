@@ -37,10 +37,10 @@ Pleajure lets you write Clojure S-expressions using whitespace in place of paren
 (load-file "pleajure.clj")
 
 Translate and display:
-(join-lines (plj-to-clj fname))
+(pleajure-print "test.plj")
 
 Translate and load (like load-file):
-(with-pleajure "test.plj")
+(pleajure-load "test.plj")
 
 
  =====================
