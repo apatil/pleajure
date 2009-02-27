@@ -35,6 +35,7 @@
 (defn start-string? [line] (.startsWith line "\""))
 (defn still-in-string? [line in-string] (if in-string (not (.endsWith line "\"")) (.startsWith line "\"")))
 (defn comment? [line] (.startsWith line ";"))
+(defn rrest [x] (rest (rest x)))
 
 (defn translate-lines
     "Converts trimmed lines and tab levels of a plj file to lines that form a clj file."
