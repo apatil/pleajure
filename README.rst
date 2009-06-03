@@ -12,14 +12,17 @@ Pleajure lets you write Clojure S-expressions using whitespace in place of paren
  =================
  = Usage example =
  =================
+::
+    
+    (load-file "pleajure.clj")
 
-(load-file "pleajure.clj")
+Translate and display::
 
-Translate and display:
-(pleajure-print "test.plj")
+    (pleajure-print "test.plj")
 
-Translate and load (like load-file):
-(pleajure-load "test.plj")
+Translate and load (like load-file)::
+    
+    (pleajure-load "test.plj")
 
 
  ====================
@@ -32,12 +35,6 @@ Translate and load (like load-file):
         b ......
             c ......
 
-translates to 
+translates to ::
 
     (a ...... (b ...... (c ......)))
-
-
- ===================
- = Syntax examples =
- ===================
-
