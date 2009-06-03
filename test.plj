@@ -145,7 +145,7 @@ defn flosures [flow]
             corresponding to all the keys whose values are requested but not
             known."
             let [[new-state roots] (apply create-agents state keys-to-update)
-                    start (start-c-update new-state roots nil)]
+                start (start-c-update new-state roots nil)]
                 [start new-state]
 
         agent-update [state & keys-to-update]
