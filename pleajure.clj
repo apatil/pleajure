@@ -55,24 +55,18 @@
         [lines tabs (conj shell-lines (add-tabs-before line tab))]
         [(conj lines line) (conj tabs tab) (conj shell-lines nil)]))
 
-(defn strip-trivial [lines tabs]
-    (reduce sort-line [[] [] []] (zip lines tabs)))
-
 (defn first-nil [vec]
     (loop [i 0 v vec]
         (if (nil? (first v)) i (recur (+ i 1) (rest v)))))
 
 (defn insert-nextline [sl line] (assoc sl (first-nil sl) line))
 
-(defn notnil-vec [lines]
-    (vec (filter (comp not nil?) lines)))
-
 (defn translate-lines [lines tabs]
     "Converts trimmed lines and tab levels of a plj file to lines that form a clj file."
     (let [lines (vec lines) tabs (vec tabs)
-        [lines tabs shell-lines] (strip-trivial lines tabs)]
-        (reduce insert-nextline shell-lines
-            (rest ((translate-nextline (reduce translate-nextline [[""] 0] (zip lines tabs)) ["" 0]) 0)))))
+        [lines tabs shell-lines] (reduce sort-line [[] [] []] (zip lines tabs))
+        translated-lines (reduce translate-nextline [[""] 0] (zip (conj lines "") (conj tabs 0)))]
+        (reduce insert-nextline shell-lines (-> 0 translated-lines rest))))
     
 (defn plj-to-lines [fname]
     "Converts a plj file to the trimmed lines of a clj file."
