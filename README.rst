@@ -1,6 +1,8 @@
-Pleajure.clj
-By Anand Patil
-February 20, 2009
+:Date: 3 June 2009
+:Author: Anand Patil
+:Contact: anand.prabhakar.patil@gmail.com
+:Copyright: Anand Patil, 2009.
+:License: See LICENSE
 
 
 Purpose
