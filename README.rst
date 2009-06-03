@@ -3,15 +3,15 @@ By Anand Patil
 February 20, 2009
 
 
- Purpose
- =======
+Purpose
+=======
 
 Pleajure lets you write Clojure S-expressions using whitespace in place of parentheses. The resulting look-and-feel is a bit like Python.
 
 
 
- Usage example 
- =============
+Usage example 
+=============
 ::
     
     (load-file "pleajure.clj")
@@ -26,8 +26,8 @@ Translate and load (like load-file)::
 
 
 
- Translation rule
- ================
+Translation rule
+================
  
  There is only one translation rule now. Indented blocks are nested S-expressions. That means ::
 
