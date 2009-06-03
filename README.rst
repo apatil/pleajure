@@ -29,12 +29,12 @@ Translate and load (like load-file)::
 Translation rule
 ================
  
- There is only one translation rule now. Indented blocks are nested S-expressions. That means::
+There is only one translation rule now. Indented blocks are nested S-expressions. That means::
 
     a ......
         b ......
-            c ......
+            (c ......)
 
-translates to ::
+translates to::
 
     (a ...... (b ...... (c ......)))
