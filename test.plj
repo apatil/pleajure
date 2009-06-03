@@ -123,8 +123,8 @@ defn flosures [flow]
             if necessary."
             if (state key) [state roots]
                 let [parents (:parents (flow key))
-                        parent-vals (select-keys orig-state parents)
-                        [state roots] (reduce (partial create-agent orig-state) [state roots] parents)]
+                    parent-vals (select-keys orig-state parents)
+                    [state roots] (reduce (partial create-agent orig-state) [state roots] parents)]
                     ; Update the state with new agents at this node and at the parent nodes
                     [(assoc state key (agent parent-vals)) 
                     ; If this is a root node, add it to the roots.
@@ -153,24 +153,24 @@ defn flosures [flow]
             to start the update and an agent whose state will eventually change to 
             [requested state []]."
             let [[new-state roots] (apply create-agents state keys-to-update)
-                    ; An agent whose value will eventually be the up-to-date state
-                    collating-agent (agent [state (set (filter (comp not state) (keys new-state)))])
-                    start (start-c-update new-state roots collating-agent)]
-                    [start collating-agent]
+                ; An agent whose value will eventually be the up-to-date state
+                collating-agent (agent [state (set (filter (comp not state) (keys new-state)))])
+                start (start-c-update new-state roots collating-agent)]
+                [start collating-agent]
 
         future-update [state & keys-to-update]
             "Does a concurrent update of the given keys. Returns a delay which, when
             forced, returns the updated state."
             let [[s a] (apply agent-update state keys-to-update)
-                    ; Create a countdown latch and a watcher that opens the latch when the state is ready.
-                    latch (java.util.concurrent.CountDownLatch. 1)
-                    w 
-                    add-watch a latch 
-                        fn [#^java.util.concurrent.CountDownLatch latch r old-v new-v] 
-                            (if (= (count (new-v 1)) 0) (.countDown latch))
-                    ; Start the update.
-                    nothing (s)]
-                    (delay (do (.await latch) (@a 0)))
+                ; Create a countdown latch and a watcher that opens the latch when the state is ready.
+                latch (java.util.concurrent.CountDownLatch. 1)
+                w 
+                add-watch a latch 
+                    fn [#^java.util.concurrent.CountDownLatch latch r old-v new-v] 
+                        (if (= (count (new-v 1)) 0) (.countDown latch))
+                ; Start the update.
+                nothing (s)]
+                (delay (do (.await latch) (@a 0)))
         ] 
         {:update update-nodes 
         :forget forget

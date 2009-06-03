@@ -50,16 +50,36 @@
     " Like Python's zip"
     (map (fn [i] [(s1 i) (s2 i)]) (-> s1 count range)))
 
+(defn sort-line [[lines tabs shell-lines] [line tab]]
+    (if (or (= (count line) 0) (.startsWith line ";"))
+        [lines tabs (conj shell-lines (add-tabs-before line tab))]
+        [(conj lines line) (conj tabs tab) (conj shell-lines nil)]))
+
+(defn strip-trivial [lines tabs]
+    (reduce sort-line [[] [] []] (zip lines tabs)))
+
+(defn first-nil [vec]
+    (loop [i 0 v vec]
+        (if (nil? (first v)) i (recur (+ i 1) (rest v)))))
+
+(defn insert-nextline [sl line] (assoc sl (first-nil sl) line))
+
+(defn notnil-vec [lines]
+    (vec (filter (comp not nil?) lines)))
+
 (defn translate-lines [lines tabs]
     "Converts trimmed lines and tab levels of a plj file to lines that form a clj file."
-    (reduce translate-nextline [[""] 0] (zip (conj (vec lines) "") (conj (vec tabs) 0))))
+    (let [lines (vec lines) tabs (vec tabs)
+        [lines tabs shell-lines] (strip-trivial lines tabs)]
+        (reduce insert-nextline shell-lines
+            (rest ((translate-nextline (reduce translate-nextline [[""] 0] (zip lines tabs)) ["" 0]) 0)))))
     
 (defn plj-to-lines [fname]
     "Converts a plj file to the trimmed lines of a clj file."
     (let [lines (file-lines fname)
         tabs (map num-tabs lines)
         lines (map clean lines)]
-        (first (translate-lines lines tabs))))
+        (translate-lines lines tabs)))
 
 (defn pleajure-print [fname] 
     "Converts a plj file to the text of a clj file and prints it."
