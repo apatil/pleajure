@@ -25,7 +25,7 @@ defn flosures [flow]
             "Utility fn that decides what to do with a key when one of its parents
             has updated."
             fn [state key]
-                (cond
+                cond
                     ; If the key is already being dealt with, do nothing.
                     (protected-keys key) state
                     ; If the key is oblivious, do nothing.
@@ -33,7 +33,7 @@ defn flosures [flow]
                     ; If the key is eager, try to update it.
                     (eager? key) (try-eager-update protected-keys state key)
                     ; Otherwise, get rid of it and its children.
-                    true (update-or-forget-children protected-keys (dissoc state key) (key-children state key)))
+                    true (update-or-forget-children protected-keys (dissoc state key) (key-children state key))
 
         change [state new-substate]
             "User-callable fn used to compute a state's value at certain keys."
@@ -80,7 +80,7 @@ defn flosures [flow]
 
         send-notify-return [state msg val key collating-agent children]
             "Wrapped by msg-err and update-and-notify"
-            (do
+            do
                 (if collating-agent (send collating-agent msg-record {key val}))
                 (map-now (send-fn state msg {key val} collating-agent) children)
                 val
@@ -100,8 +100,8 @@ defn flosures [flow]
             "A message that a parent can send to a child when it has 
             updated."
             let [new-vals (merge parent-vals new-pv) 
-                    node (flow key)
-                    children (:children node)]
+                node (flow key)
+                children (:children node)]
                 if (same-number? new-vals (:parents node)) 
                     ; If the value can be computed, do it.
                     try (update-and-notify state collating-agent key node new-vals children)

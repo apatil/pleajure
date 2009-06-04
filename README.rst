@@ -10,6 +10,7 @@ Purpose
 
 Pleajure lets you write Clojure S-expressions using whitespace in place of parentheses. The resulting look-and-feel is a bit like Python.
 
+It also provides a macro for infix arithmetic, called ``|``. The macro was posted to the Clojure mailing list by Jeff Bester.
 
 
 Usage example 
@@ -39,4 +40,6 @@ There is only one translation rule now. Indented blocks are nested S-expressions
 
 translates to::
 
-    (a ...... (b ...... (c ......)))
+    (a ...... 
+        (b ...... 
+            (c ......)))
